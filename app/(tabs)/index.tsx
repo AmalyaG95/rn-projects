@@ -1,98 +1,160 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { createHomeStyles } from "@/assets/styles/home.styles";
+import {
+  EditTodo,
+  EmptyState,
+  Header,
+  LoadingSpinner,
+  TodoCard,
+  TodoInput,
+} from "@/components";
+import { api } from "@/convex/_generated/api";
+import useTheme from "@/hooks/useTheme";
+import { TTodo, TTodoId } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQuery } from "convex/react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
+import {
+  Alert,
+  FlatList,
+  StatusBar,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const Todos = () => {
+  const { colors } = useTheme();
+  const styles = createHomeStyles(colors);
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+  const [editingId, setEditingId] = useState<TTodoId | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const todos = useQuery(api.todos.getTodos);
+  const toggleTodo = useMutation(api.todos.toggleTodo);
+  const deleteTodo = useMutation(api.todos.deleteTodo);
+  const updateTodo = useMutation(api.todos.updateTodo);
+  const isLoading = todos === undefined;
+
+  const handleToggleTodo = async (id: TTodoId) => {
+    try {
+      await toggleTodo({ id });
+    } catch (error) {
+      console.log("Toggle Error", error);
+      Alert.alert("Error", "Failed to toggle check");
+    }
+  };
+
+  const handleDeleteTodo = async (id: TTodoId) => {
+    Alert.alert("Delete Todo", "Are you sure you want to delete this todo?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => deleteTodo({ id }),
+      },
+    ]);
+  };
+
+  const handleEditTodo = (todo: TTodo) => {
+    setEditingId(todo._id);
+    setEditText(todo.text);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingId) {
+      try {
+        await updateTodo({ id: editingId, text: editText.trim() });
+        setEditingId(null);
+        setEditText("");
+      } catch (error) {
+        console.log("Error updating Todo", error);
+        Alert.alert("Error", "Failed to update Todo");
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  if (isLoading) return <LoadingSpinner />;
+
+  const renderTodoItems = ({ item }: { item: TTodo }) => {
+    const isEditing = editingId === item._id;
+
+    return (
+      <View style={styles.todoItemWrapper}>
+        <LinearGradient
+          colors={colors.gradients.surface}
+          style={styles.todoItem}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <TouchableOpacity
+            style={styles.checkbox}
+            activeOpacity={0.7}
+            onPress={() => handleToggleTodo(item._id)}
+          >
+            <LinearGradient
+              colors={
+                item.isCompleted
+                  ? colors.gradients.success
+                  : colors.gradients.muted
+              }
+              style={[
+                styles.checkboxInner,
+                {
+                  borderColor: item.isCompleted ? "transparent" : colors.border,
+                },
+              ]}
+            >
+              {item.isCompleted && (
+                <Ionicons name="checkmark" size={18} color="#fff" />
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+          {isEditing ? (
+            <EditTodo
+              editText={editText}
+              setEditText={setEditText}
+              onSave={handleSaveEdit}
+              onCancel={handleCancelEdit}
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+          ) : (
+            <TodoCard
+              todo={item}
+              onEdit={handleEditTodo}
+              onDelete={handleDeleteTodo}
+            />
+          )}
+        </LinearGradient>
+      </View>
+    );
+  };
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <LinearGradient
+      colors={colors.gradients.background}
+      style={styles.container}
+    >
+      <StatusBar barStyle={colors.statusBarStyle} />
+      <SafeAreaView style={styles.safeArea}>
+        <Header />
+        <TodoInput />
+        <FlatList
+          data={todos}
+          renderItem={renderTodoItems}
+          keyExtractor={(todo) => todo._id}
+          style={styles.todoList}
+          contentContainerStyle={styles.todoListContent}
+          ListEmptyComponent={EmptyState}
+          showsVerticalScrollIndicator={false}
+        />
+      </SafeAreaView>
+    </LinearGradient>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default Todos;
