@@ -53,7 +53,6 @@ const updateTodo = mutation({
 });
 
 const clearAllTodos = mutation({
-  args: { id: v.id("todos") },
   handler: async (context) => {
     const todos = await context.db.query("todos").collect();
 

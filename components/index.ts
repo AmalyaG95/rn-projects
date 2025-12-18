@@ -4,3 +4,6 @@ export { default as LoadingSpinner } from './loading-spinner';
 export { default as TodoInput } from './todos/todo-input';
 export { default as TodoCard } from './todos/todo-card';
 export { default as EditTodo } from './todos/edit-todo';
+export { default as ProgressStats } from './settings/progress-stats';
+export { default as Preferences } from './settings/preferences';
+export { default as DangerZone } from './settings/danger-zone';
