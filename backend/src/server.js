@@ -1,0 +1,24 @@
+import express from "express";
+import dotenv from "dotenv";
+import { initDB, sql } from "./config/db.js";
+import rateLimiter from "./middleware/rateLimiter.js";
+
+import transactionsRoute from "./routes/transactions.js";
+
+dotenv.config();
+
+const app = express();
+
+// middleware
+app.use(rateLimiter);
+app.use(express.json());
+
+const PORT = process.env.PORT || 5000;
+
+app.use("/api/transactions", transactionsRoute)
+
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("Amalya's Server is up and running on PORT:", PORT);
+  });
+});
