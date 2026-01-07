@@ -18,8 +18,8 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-app.get("api/health", (req, res) => {
-  res.status(200).json({status: "ok"})
+app.use("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 app.use("/api/transactions", transactionsRoute)
