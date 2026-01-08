@@ -4,6 +4,20 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "@EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
+      }
+    },
     "production": {
       "android": {
         "buildType": "apk"
