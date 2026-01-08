@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.card,
-    margin: 16,
+    margin: 10,
     borderRadius: 16,
     padding: 16,
     shadowColor: "#000",
@@ -49,7 +49,7 @@ export const styles = StyleSheet.create({
   },
   typeSelector: {
     flexDirection: "row",
-    marginBottom: 20,
+    marginBottom: 5,
     gap: 10,
   },
   typeButton: {
@@ -82,18 +82,18 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-    paddingBottom: 16,
-    marginBottom: 20,
+    paddingBottom: 5,
+    marginBottom: 14,
   },
   currencySymbol: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: "bold",
     color: COLORS.text,
     marginRight: 8,
   },
   amountInput: {
     flex: 1,
-    fontSize: 36,
+    fontSize: 30,
     fontWeight: "bold",
     color: COLORS.text,
   },
@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 12,
     padding: 4,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: COLORS.white,
   },
   inputIcon: {
@@ -149,13 +149,13 @@ export const styles = StyleSheet.create({
   },
   categoryButtonText: {
     color: COLORS.text,
-    fontSize: 14,
+    fontSize: 12,
   },
   categoryButtonTextActive: {
     color: COLORS.white,
   },
   loadingContainer: {
-    padding: 20,
+    padding: 8,
     alignItems: "center",
     justifyContent: "center",
   },
